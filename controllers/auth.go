@@ -906,6 +906,11 @@ func (c *ApiController) Login() {
 						userId = util.GenerateId()
 					}
 
+					avatar := userInfo.AvatarUrl
+					if avatar == "" {
+						avatar = organization.DefaultAvatar
+					}
+
 					user = &object.User{
 						Owner:             application.Organization,
 						Name:              userInfo.Username,
@@ -913,7 +918,7 @@ func (c *ApiController) Login() {
 						Id:                userId,
 						Type:              "normal-user",
 						DisplayName:       userInfo.DisplayName,
-						Avatar:            userInfo.AvatarUrl,
+						Avatar:            avatar,
 						Address:           []string{},
 						Email:             userInfo.Email,
 						Phone:             userInfo.Phone,

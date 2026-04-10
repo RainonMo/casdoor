@@ -16,6 +16,8 @@ ARG USER=casdoor
 ARG TARGETOS
 ARG TARGETARCH
 ENV BUILDX_ARCH="${TARGETOS:-linux}_${TARGETARCH:-amd64}"
+# Set Go module proxy to use domestic mirror for better connectivity
+ENV GOPROXY=https://goproxy.cn,direct
 
 RUN sed -i 's/https/http/' /etc/apk/repositories
 RUN apk add --update sudo

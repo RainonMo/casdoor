@@ -448,21 +448,43 @@ export function getAuthUrl(application, provider, method, code) {
       return `${endpoint}?appid=${provider.clientId}&redirect_uri=${redirectUri}&scope=${scope}&response_type=code&state=${state}#wechat_redirect`;
     }
   } else if (provider.type === "WeCom") {
+    // Auto-detect WeCom environment: use silent login in WeCom app, QR code login on PC
+    const isInWeComApp = navigator.userAgent.includes("wxwork");
+    const isSilentMethod = provider.method === "Silent";
+    const isNormalMethod = provider.method === "Normal";
+    const isAutoMethod = provider.method === "Auto" || (!isSilentMethod && !isNormalMethod);
+
     if (provider.subType === "Internal") {
-      if (provider.method === "Silent") {
+      if (isInWeComApp && (isSilentMethod || isAutoMethod)) {
+        // In WeCom app: use silent login (OAuth2)
         endpoint = authInfo[provider.type].silentEndpoint;
         return `${endpoint}?appid=${provider.clientId}&redirect_uri=${redirectUri}&state=${state}&scope=${scope}&response_type=code#wechat_redirect`;
-      } else if (provider.method === "Normal") {
+      } else if (!isInWeComApp && (isNormalMethod || isAutoMethod)) {
+        // On PC: use QR code login
+        endpoint = authInfo[provider.type].internalEndpoint;
+        return `${endpoint}?login_type=CorpApp&appid=${provider.clientId}&agentid=${provider.appId}&redirect_uri=${redirectUri}&state=${state}`;
+      } else if (isSilentMethod) {
+        endpoint = authInfo[provider.type].silentEndpoint;
+        return `${endpoint}?appid=${provider.clientId}&redirect_uri=${redirectUri}&state=${state}&scope=${scope}&response_type=code#wechat_redirect`;
+      } else if (isNormalMethod) {
         endpoint = authInfo[provider.type].internalEndpoint;
         return `${endpoint}?login_type=CorpApp&appid=${provider.clientId}&agentid=${provider.appId}&redirect_uri=${redirectUri}&state=${state}`;
       } else {
         return `https://error:not-supported-provider-method:${provider.method}`;
       }
     } else if (provider.subType === "Third-party") {
-      if (provider.method === "Silent") {
+      if (isInWeComApp && (isSilentMethod || isAutoMethod)) {
+        // In WeCom app: use silent login (OAuth2)
         endpoint = authInfo[provider.type].silentEndpoint;
         return `${endpoint}?appid=${provider.clientId}&redirect_uri=${redirectUri}&state=${state}&scope=${scope}&response_type=code#wechat_redirect`;
-      } else if (provider.method === "Normal") {
+      } else if (!isInWeComApp && (isNormalMethod || isAutoMethod)) {
+        // On PC: use QR code login
+        endpoint = authInfo[provider.type].endpoint;
+        return `${endpoint}?login_type=ServiceApp&appid=${provider.clientId}&redirect_uri=${redirectUri}&state=${state}`;
+      } else if (isSilentMethod) {
+        endpoint = authInfo[provider.type].silentEndpoint;
+        return `${endpoint}?appid=${provider.clientId}&redirect_uri=${redirectUri}&state=${state}&scope=${scope}&response_type=code#wechat_redirect`;
+      } else if (isNormalMethod) {
         endpoint = authInfo[provider.type].endpoint;
         return `${endpoint}?login_type=ServiceApp&appid=${provider.clientId}&redirect_uri=${redirectUri}&state=${state}`;
       } else {

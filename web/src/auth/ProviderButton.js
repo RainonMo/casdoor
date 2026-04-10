@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import React from "react";
+import React, {useEffect} from "react";
 import i18next from "i18next";
 import * as Provider from "./Provider";
-import {getProviderLogoURL} from "../Setting";
+import {getProviderLogoURL, goToLink} from "../Setting";
 import {GithubLoginButton, GoogleLoginButton} from "react-social-login-buttons";
 import QqLoginButton from "./QqLoginButton";
 import FacebookLoginButton from "./FacebookLoginButton";
@@ -143,7 +143,43 @@ export function goToWeb3Url(application, provider, method) {
   }
 }
 
+function WeComAutoLogin({provider, application}) {
+  useEffect(() => {
+    // Check if in WeCom app and auto-login is enabled (method is "Auto" or not explicitly set)
+    const isInWeComApp = navigator.userAgent.includes("wxwork");
+    const isAutoMethod = provider.method === "Auto" || (provider.method !== "Silent" && provider.method !== "Normal");
+
+    if (isInWeComApp && isAutoMethod) {
+      // Auto redirect to silent login
+      const authUrl = Provider.getAuthUrl(application, provider, "signup");
+      if (authUrl && !authUrl.startsWith("https://error")) {
+        goToLink(authUrl);
+      }
+    }
+  }, [provider, application]);
+
+  return null;
+}
+
 export function renderProviderLogo(provider, application, width, margin, size, location) {
+  // Handle WeCom auto-login in WeCom app
+  if (provider.type === "WeCom") {
+    const isInWeComApp = navigator.userAgent.includes("wxwork");
+    const isAutoMethod = provider.method === "Auto" || (provider.method !== "Silent" && provider.method !== "Normal");
+
+    if (isInWeComApp && isAutoMethod) {
+      // In WeCom app with auto mode: show loading state and auto-login
+      return (
+        <React.Fragment key={provider.displayName}>
+          <WeComAutoLogin provider={provider} application={application} />
+          <div className="provider-big-img" style={{display: "flex", justifyContent: "center", alignItems: "center", height: "50px"}}>
+            <span>{i18next.t("login:Signing in with WeCom...")}</span>
+          </div>
+        </React.Fragment>
+      );
+    }
+  }
+
   if (size === "small") {
     if (provider.category === "OAuth") {
       if (provider.type === "WeChat" && provider.clientId2 !== "" && provider.clientSecret2 !== "" && provider.disableSsl === true && !navigator.userAgent.includes("MicroMessenger")) {

@@ -816,6 +816,7 @@ class ProviderEditPage extends React.Component {
                         }}>
                           {
                             [
+                              {id: "Auto", name: i18next.t("provider:Auto")},
                               {id: "Normal", name: i18next.t("provider:Normal")},
                               {id: "Silent", name: i18next.t("provider:Silent")},
                             ].map((method, index) => <Option key={index} value={method.id}>{method.name}</Option>)
