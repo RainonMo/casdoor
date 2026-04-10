@@ -161,6 +161,24 @@ function WeComAutoLogin({provider, application}) {
   return null;
 }
 
+function WeComPCAautoLogin({provider, application}) {
+  useEffect(() => {
+    // Check if on PC (not in WeCom app) and auto-login is enabled (method is "Auto" or not explicitly set)
+    const isInWeComApp = navigator.userAgent.includes("wxwork");
+    const isAutoMethod = provider.method === "Auto" || (provider.method !== "Silent" && provider.method !== "Normal");
+
+    if (!isInWeComApp && isAutoMethod) {
+      // Auto redirect to QR code login on PC
+      const authUrl = Provider.getAuthUrl(application, provider, "signup");
+      if (authUrl && !authUrl.startsWith("https://error")) {
+        goToLink(authUrl);
+      }
+    }
+  }, [provider, application]);
+
+  return null;
+}
+
 export function renderProviderLogo(provider, application, width, margin, size, location) {
   // Handle WeCom auto-login in WeCom app
   if (provider.type === "WeCom") {
@@ -174,6 +192,16 @@ export function renderProviderLogo(provider, application, width, margin, size, l
           <WeComAutoLogin provider={provider} application={application} />
           <div className="provider-big-img" style={{display: "flex", justifyContent: "center", alignItems: "center", height: "50px"}}>
             <span>{i18next.t("login:Signing in with WeCom...")}</span>
+          </div>
+        </React.Fragment>
+      );
+    } else if (!isInWeComApp && isAutoMethod) {
+      // On PC with auto mode: auto redirect to QR code login
+      return (
+        <React.Fragment key={provider.displayName}>
+          <WeComPCAautoLogin provider={provider} application={application} />
+          <div className="provider-big-img" style={{display: "flex", justifyContent: "center", alignItems: "center", height: "50px"}}>
+            <span>{i18next.t("login:Redirecting to WeCom login...")}</span>
           </div>
         </React.Fragment>
       );

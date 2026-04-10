@@ -648,6 +648,8 @@
     "Signin button": "Signin button",
     "Signing in with WeCom...": "Signing in with WeCom...",
     "Signing in...": "Signing in...",
+    "Redirecting to WeCom login...": "Redirecting to WeCom login...",
+    "Redirecting to WeCom login": "Redirecting to WeCom login",
     "Successfully logged in with WebAuthn credentials": "Successfully logged in with WebAuthn credentials",
     "The camera is currently in use by another webpage": "The camera is currently in use by another webpage",
     "The input is not valid Email or phone number!": "The input is not valid Email or phone number!",
