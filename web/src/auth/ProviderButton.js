@@ -167,7 +167,12 @@ function WeComPCAautoLogin({provider, application}) {
     const isInWeComApp = navigator.userAgent.includes("wxwork");
     const isAutoMethod = provider.method === "Auto" || (provider.method !== "Silent" && provider.method !== "Normal");
 
-    if (!isInWeComApp && isAutoMethod) {
+    // Only auto-redirect in OAuth login flow, not in admin panel preview
+    const urlParams = new URLSearchParams(window.location.search);
+    const hasOauthParams = urlParams.has("client_id") && urlParams.has("redirect_uri");
+    const isLoginPage = window.location.pathname.includes("/login") || window.location.pathname.includes("/signup");
+
+    if (!isInWeComApp && isAutoMethod && hasOauthParams && isLoginPage) {
       // Auto redirect to QR code login on PC
       const authUrl = Provider.getAuthUrl(application, provider, "signup");
       if (authUrl && !authUrl.startsWith("https://error")) {
@@ -196,15 +201,22 @@ export function renderProviderLogo(provider, application, width, margin, size, l
         </React.Fragment>
       );
     } else if (!isInWeComApp && isAutoMethod) {
-      // On PC with auto mode: auto redirect to QR code login
-      return (
-        <React.Fragment key={provider.displayName}>
-          <WeComPCAautoLogin provider={provider} application={application} />
-          <div className="provider-big-img" style={{display: "flex", justifyContent: "center", alignItems: "center", height: "50px"}}>
-            <span>{i18next.t("login:Redirecting to WeCom login...")}</span>
-          </div>
-        </React.Fragment>
-      );
+      // On PC with auto mode: check if in OAuth login flow before showing auto-redirect UI
+      const urlParams = new URLSearchParams(window.location.search);
+      const hasOauthParams = urlParams.has("client_id") && urlParams.has("redirect_uri");
+      const isLoginPage = window.location.pathname.includes("/login") || window.location.pathname.includes("/signup");
+
+      if (hasOauthParams && isLoginPage) {
+        // Auto redirect to QR code login on PC
+        return (
+          <React.Fragment key={provider.displayName}>
+            <WeComPCAautoLogin provider={provider} application={application} />
+            <div className="provider-big-img" style={{display: "flex", justifyContent: "center", alignItems: "center", height: "50px"}}>
+              <span>{i18next.t("login:Redirecting to WeCom login...")}</span>
+            </div>
+          </React.Fragment>
+        );
+      }
     }
   }
 
