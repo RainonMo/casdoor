@@ -839,7 +839,7 @@ class SignupPage extends React.Component {
               }
             }}>
               {
-                ProviderButton.renderProviderLogo(providerItem.provider, application, null, null, signupItem.rule, this.props.location)
+                ProviderButton.renderProviderLogo(providerItem.provider, application, null, null, signupItem.rule, this.props.location, this.props.preview === "auto")
               }
             </span>
           );

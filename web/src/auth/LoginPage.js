@@ -943,7 +943,7 @@ class LoginPage extends React.Component {
                     }
                   }}>
                     {
-                      ProviderButton.renderProviderLogo(providerItem.provider, application, null, null, signinItem.rule, this.props.location)
+                      ProviderButton.renderProviderLogo(providerItem.provider, application, null, null, signinItem.rule, this.props.location, this.props.preview === "auto")
                     }
                   </span>
                 );

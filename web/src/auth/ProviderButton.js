@@ -143,8 +143,13 @@ export function goToWeb3Url(application, provider, method) {
   }
 }
 
-function WeComAutoLogin({provider, application}) {
+function WeComAutoLogin({provider, application, isPreview}) {
   useEffect(() => {
+    // Skip auto-login in preview mode
+    if (isPreview) {
+      return;
+    }
+
     // Check if in WeCom app and auto-login is enabled (method is "Auto" or not explicitly set)
     const isInWeComApp = navigator.userAgent.includes("wxwork");
     const isAutoMethod = provider.method === "Auto" || (provider.method !== "Silent" && provider.method !== "Normal");
@@ -156,13 +161,18 @@ function WeComAutoLogin({provider, application}) {
         goToLink(authUrl);
       }
     }
-  }, [provider, application]);
+  }, [provider, application, isPreview]);
 
   return null;
 }
 
-function WeComPCAautoLogin({provider, application}) {
+function WeComPCAautoLogin({provider, application, isPreview}) {
   useEffect(() => {
+    // Skip auto-login in preview mode
+    if (isPreview) {
+      return;
+    }
+
     // Check if on PC (not in WeCom app) and auto-login is enabled (method is "Auto" or not explicitly set)
     const isInWeComApp = navigator.userAgent.includes("wxwork");
     const isAutoMethod = provider.method === "Auto" || (provider.method !== "Silent" && provider.method !== "Normal");
@@ -174,12 +184,12 @@ function WeComPCAautoLogin({provider, application}) {
         goToLink(authUrl);
       }
     }
-  }, [provider, application]);
+  }, [provider, application, isPreview]);
 
   return null;
 }
 
-export function renderProviderLogo(provider, application, width, margin, size, location) {
+export function renderProviderLogo(provider, application, width, margin, size, location, isPreview = false) {
   // Handle WeCom auto-login in WeCom app
   if (provider.type === "WeCom") {
     const isInWeComApp = navigator.userAgent.includes("wxwork");
@@ -189,7 +199,7 @@ export function renderProviderLogo(provider, application, width, margin, size, l
       // In WeCom app with auto mode: show loading state and auto-login
       return (
         <React.Fragment key={provider.displayName}>
-          <WeComAutoLogin provider={provider} application={application} />
+          <WeComAutoLogin provider={provider} application={application} isPreview={isPreview} />
           <div className="provider-big-img" style={{display: "flex", justifyContent: "center", alignItems: "center", height: "50px"}}>
             <span>{i18next.t("login:Signing in with WeCom...")}</span>
           </div>
@@ -199,7 +209,7 @@ export function renderProviderLogo(provider, application, width, margin, size, l
       // On PC with auto mode: auto redirect to QR code login
       return (
         <React.Fragment key={provider.displayName}>
-          <WeComPCAautoLogin provider={provider} application={application} />
+          <WeComPCAautoLogin provider={provider} application={application} isPreview={isPreview} />
           <div className="provider-big-img" style={{display: "flex", justifyContent: "center", alignItems: "center", height: "50px"}}>
             <span>{i18next.t("login:Redirecting to WeCom login...")}</span>
           </div>
